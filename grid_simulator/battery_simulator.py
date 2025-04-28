@@ -76,16 +76,18 @@ class BatterySimulator():
         
         #inside the battery side:
         max_discharge_energy = self.get_discharge_capacity()
+        #10
         
         #out of battery: 
-        max_discharge_energy = max_discharge_energy/self.battery_efficiency
+        #9=10*0.9
+        max_discharge_energy = max_discharge_energy*self.battery_efficiency
         
         if discharge_energy < max_discharge_energy: 
-            discharged = discharge_energy*self.battery_efficiency
-            self.update_soc(-discharged)
+            discharged = discharge_energy
+            self.update_soc(-discharged/self.battery_efficiency)
         else:
-            discharged = max_discharge_energy*self.battery_efficiency
-            self.update_soc(-discharged)
+            discharged = max_discharge_energy
+            self.update_soc(-discharged/self.battery_efficiency)
             unmet_demand = discharge_energy - (max_discharge_energy)
         
         return discharged, unmet_demand
@@ -110,7 +112,7 @@ class BatterySimulator():
         return self.battery_soc
  
     def _set_battery_capacity(self,battery_capacity) -> float:
-        "internal func for setting battery capcity during testing."
+        """internal func for setting battery capcity during testing."""
         self.battery_capacity = battery_capacity
         return self.battery_capacity
     

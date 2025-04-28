@@ -98,6 +98,15 @@ class microGridSimulator():
         return result
    
     def artificial_positive_energy_balance(self, energy_balance:float, purchase_request:float):
+        """
+        Use: Runs when the energy balance + the purchase request is positive. Decides how much of the purchase request can be fufilled.(Avoids trying to over charge the battery)
+        Args:
+            energy_balance (float): _description_
+            purchase_request (float): _description_
+
+        Returns:
+            Float: Amount to be purchased, calculated from available capacity and the purchase request.
+        """
         # Energy balance -5kwh, purchase request is 8 kwh, charge_capacity is 2kWh
         # to_purchase = min( -Energy_balance + max usable charge energy, purchase request) 
         # to_purchase = min (- (-5) + 2, 8) = 7 
@@ -106,15 +115,16 @@ class microGridSimulator():
         
         return to_purchase
     
-    def negative_energy_balance(self, energy_balance:float, purchase_request: float)->Tuple:
-        """_summary_
+    def negative_energy_balance(self, energy_balance:float, purchase_request: float)->float:
+        """
         Use: Runs when the Energy balance is negative. Decicdes where the energy should come from. 
+            Purchase request, then battery, then additional grid energy. 
         Args:
-            energy_balance (float): _description_
-            purchase_request (float): _description_
+            energy_balance (float): From Solar - load
+            purchase_request (float): From agent
 
         Returns:
-            Tuple: _description_
+            Float: Amount to be purchased from the grid, inclusive of purchase request.
         """
         
                     #Need to draw energy from grid or battery. 
