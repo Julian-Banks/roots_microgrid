@@ -110,6 +110,9 @@ class microGridSimulator():
         # Energy balance -5kwh, purchase request is 8 kwh, charge_capacity is 2kWh
         # to_purchase = min( -Energy_balance + max usable charge energy, purchase request) 
         # to_purchase = min (- (-5) + 2, 8) = 7 
+        print('In artificial positive energy balance')
+        print('Energy balance: ', energy_balance)
+        print('Purchase request: ', purchase_request)
         charge_capacity = self.battery.get_charge_capacity()
         to_purchase = min(-energy_balance+charge_capacity, purchase_request)
         
@@ -153,7 +156,7 @@ class microGridSimulator():
             
             #if the max usable energy is more thatn the available energy balance. Then you can purchase more energy.
             # if you can purchase more, then you can only purchase up to the available energy or less.  
-            # if the max usable energy is less than the energy balance then you can't request to purchase more because there will already be excess. 
+            # if the max usable energy is less than the energy balance then you can't request to purchase more because there will already be excess.
             if charge_capacity - energy_balance > 0 :
                 to_purchase = min(purchase_request, charge_capacity - energy_balance)
             else: 

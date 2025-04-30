@@ -157,7 +157,7 @@ class TestMicroGridSimulator(unittest.TestCase):
         
         self.assertDictEqual(result,expected_result)
             
-    def test_case4(self): 
+    def test_case4(self): #testing Positive Energy balance path. With Purchase less than max available charge capacity. 
         # Case 3: energy balance is 8kWh, available_charge_capacity = 10kWh, purchase request = 2kWh Output: to_purchase = 2, charged = (8+2)*0.9, excess = 0
         self.microgrid_simulator.battery._set_battery_capacity(100)
         self.microgrid_simulator.battery._set_soc(0.90)
@@ -167,7 +167,7 @@ class TestMicroGridSimulator(unittest.TestCase):
         
         self.microgrid_simulator._set_state(load = 2, solar_gen = 10, tou_tariff = 1, battery_soc = 0.90)
         
-        result = self.microgrid_simulator.update_state(action = 0)
+        result = self.microgrid_simulator.update_state(action = 2)
         
         energy_balance = 8
         purchase_request = 2
@@ -198,14 +198,14 @@ class TestMicroGridSimulator(unittest.TestCase):
         result = self.microgrid_simulator.update_state(action = 6)
 
         #Since the energy balance is much higer than the available charge capacity the expected charge is the available capacity with efficiency applied. 
-        expected_charge = 8/self.microgrid_simulator.battery.battery_efficiency
+        expected_charge = 8.0
         
         expected_result = {
             'to_purchase': 0,
             'charged_this_step': expected_charge,#8/0.9 = 8.8888
             'discharged_this_step': 0,
-            'excess_this_step': 12 - expected_charge,
-            'umet_demand_this_step': 0
+            'excess_this_step': 12 - expected_charge/self.microgrid_simulator.battery.battery_efficiency,
+            'unmet_demand_this_step': 0
         }
         
         self.assertDictEqual(result,expected_result)
@@ -222,13 +222,13 @@ class TestMicroGridSimulator(unittest.TestCase):
         
         result = self.microgrid_simulator.update_state(action = 4)
         
-        expected_charge = 8/self.microgrid_simulator.battery.battery_efficiency
+        expected_charge = 8.0
 
         expected_result = {
             'to_purchase': 0,
             'charged_this_step': expected_charge,
-            'discharge_this_step': 0,
-            'excess_this_step': 12 - expected_charge,
+            'discharged_this_step': 0,
+            'excess_this_step': 12 - expected_charge/self.microgrid_simulator.battery.battery_efficiency,
             'unmet_demand_this_step': 0
         }
         
@@ -245,18 +245,18 @@ class TestMicroGridSimulator(unittest.TestCase):
         
         result = self.microgrid_simulator.update_state(action = 0)
         
-        expected_charge = 8/self.microgrid_simulator.battery.battery_efficiency
+        expected_charge = 8.0
 
         expected_result = {
             'to_purchase': 0,
             'charged_this_step': expected_charge,
-            'discharge_this_step': 0,
-            'excess_this_step': 12 - expected_charge,
+            'discharged_this_step': 0,
+            'excess_this_step': 12 - expected_charge/self.microgrid_simulator.battery.battery_efficiency,
             'unmet_demand_this_step': 0
         }
         self.assertDictEqual(result,expected_result)  
                   
-    def test_case8(self):
+    def test_case8(self): #Testing the negative power balance path with 0 purchase request but enough battery
         #case 8: energy balance is -8kWh, available_discharge_capacity = 10kWh, purchase request = 0
         #setup the battery:
         self.microgrid_simulator.battery._set_battery_capacity(100)
@@ -270,7 +270,7 @@ class TestMicroGridSimulator(unittest.TestCase):
         #Get the result with 0 purchase request
         result = self.microgrid_simulator.update_state(action = 0)
         
-        expected_discharge = 8
+        expected_discharge = 8 
         expected_soc = 0.50 - (expected_discharge/self.microgrid_simulator.battery.battery_efficiency)/100 #0.50 - (8/0.9)/100 = 0.4111
         expected_result = {
             'to_purchase': 0, 
@@ -304,7 +304,7 @@ class TestMicroGridSimulator(unittest.TestCase):
         expected_soc = 0.5
         expected_result = {
             'to_purchase':  8,
-            'charge_this_step': 0,
+            'charged_this_step': 0,
             'discharged_this_step': 0,
             'excess_this_step': 0,
             'unmet_demand_this_step': 0
@@ -327,22 +327,23 @@ class TestMicroGridSimulator(unittest.TestCase):
         self.microgrid_simulator._set_state(load=10, solar_gen=2, tou_tariff=1, battery_soc=0.5)
         
         #Get the result with 8kWh purchase request
-        result = self.microgrid_simulator.update_state(action = 8)
+        result = self.microgrid_simulator.update_state(action = 10)
     
-        expected_charge = 2 #purchase request - abs(energy_balance)
-        expected_soc = 0.5 + (expected_charge*self.microgrid_simulator.battery.battery_efficiency)/100 # 0.5 + (2*0.9)/100 = 0.518
+        expected_charge = (-8+10)*self.microgrid_simulator.battery.battery_efficiency
+        
+        expected_soc = 0.5 + (expected_charge)/100 # 0.5 + (2*0.9)/100 = 0.518
         
         expected_result = {
             'to_purchase':  10,
-            'charge_this_step': 2,
+            'charged_this_step': expected_charge,
             'discharged_this_step': 0,
             'excess_this_step': 0,
             'unmet_demand_this_step': 0
         }
         
         #Check that the battery discharged as expected.
-        self.assertEqual(expected_soc, self.microgrid_simulator.battery.get_soc())
         self.assertDictEqual(result,expected_result)
+        self.assertEqual(expected_soc, self.microgrid_simulator.battery.get_soc())
     
     def test_case11(self): #Testing Negative energy balance path.
         #case 11: energy balance is -10kWh, available_discharge_capacity = 8kWh, purchase_request = 0
@@ -363,7 +364,7 @@ class TestMicroGridSimulator(unittest.TestCase):
         expected_purchase = 10 - expected_discharge 
         expected_result = {
             'to_purchase': expected_purchase,
-            'charge_this_step': 0,
+            'charged_this_step': 0,
             'discharged_this_step': expected_discharge,
             'excess_this_step': 0,
             'unmet_demand_this_step': 0
@@ -390,7 +391,7 @@ class TestMicroGridSimulator(unittest.TestCase):
         expected_purchase = 10 - expected_discharge 
         expected_result = {
             'to_purchase': expected_purchase,
-            'charge_this_step': 0,
+            'charged_this_step': 0,
             'discharged_this_step': expected_discharge,
             'excess_this_step': 0,
             'unmet_demand_this_step': 0
@@ -418,7 +419,7 @@ class TestMicroGridSimulator(unittest.TestCase):
         expected_purchase = 4
         expected_result = {
             'to_purchase': expected_purchase,
-            'charge_this_step': 0,
+            'charged_this_step': 0,
             'discharged_this_step': expected_discharge,
             'excess_this_step': 0,
             'unmet_demand_this_step': 0

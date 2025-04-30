@@ -75,7 +75,7 @@ class BatterySimulator():
         unmet_demand:float = 0
         
         #inside the battery side:
-        max_discharge_energy = self.get_discharge_capacity()
+        max_discharge_energy:float  = self.get_discharge_capacity()
         #10
         
         #out of battery: 
@@ -93,7 +93,9 @@ class BatterySimulator():
         return discharged, unmet_demand
     
     def get_discharge_capacity(self) -> float: 
-        avail_battery_energy:float = self.battery_capacity*(self.get_soc()-self.battery_soc_cuttoff)
+        
+        #I reluctantly used round(soc-soc_cutoff,6) because it was giving floating point precision issues... 
+        avail_battery_energy:float = self.battery_capacity*round(self.get_soc()-self.battery_soc_cuttoff,6)
         
         max_discharge_rate: float  = min(self.battery_C_rate*self.battery_capacity*self.time_interval, avail_battery_energy)
         
@@ -107,7 +109,29 @@ class BatterySimulator():
     def get_soc(self) -> float:
         return self.battery_soc
     
+    def update_soc(self, energy:float ) -> float:
+        self.battery_soc += energy/self.battery_capacity
+        #I was getting issues with floating point precision. 6 decimal points should be enough??? Maybe I should use soc out of 100 rather than 0->1.
+        #self.battery_soc=round(self.battery_soc,6)
+        return self.battery_soc
+    
+    
+    def _set_battery_soc_cutoff(self, soc_cutoff:float)->float:
+        """
+        Internal func for setting SOC cutoff during testing.
+        Args:
+            soc_cutoff (float): between 0 -> 1
+
+        Returns:
+            float: new _soc_cutoff
+        """
+        self.battery_soc_cuttoff = soc_cutoff
+        return self.battery_soc_cuttoff
+    
     def _set_soc(self,soc) -> float:
+        """
+        Internal func for setting SOC during testing.
+        """
         self.battery_soc = soc
         return self.battery_soc
  
@@ -116,9 +140,7 @@ class BatterySimulator():
         self.battery_capacity = battery_capacity
         return self.battery_capacity
     
-    def update_soc(self, energy:float ) -> float:
-        self.battery_soc += energy/self.battery_capacity
-        return self.battery_soc
+
        
 
     
