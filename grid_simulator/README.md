@@ -10,13 +10,13 @@ Python framework for simulating grid-connected microgrid systems with battery st
 
 ```mermaid
 graph TD
-    Solar[Solar Simulator] -->|Generation| Battery[Battery System]
+    Solar[Solar Simulator] -->|Generation| Microgrid[Microgrid Controller]
     Grid[Grid Interface] -->|Import/Export| Microgrid[Microgrid Controller]
-    Load[Load Simulator] -->|Demand| Battery
+    Load[Load Simulator] --> Microgrid[Microgrid Controller]
     Battery -->|Storage Levels| Microgrid
-    Microgrid -->|Control Signals| Solar
     Microgrid -->|Control Signals| Grid
-    
+    Microgrid -->|Control Signals| Battery
+```
 Core Components
 Battery System (battery_simulator.py)
 Tracks state of charge (SOC)
