@@ -16,7 +16,7 @@ graph TD
     Battery -->|Storage Levels| Microgrid
     Microgrid -->|Control Signals| Solar
     Microgrid -->|Control Signals| Grid
-    
+
 Core Components
 Battery System (battery_simulator.py)
 Tracks state of charge (SOC)
@@ -52,3 +52,7 @@ tariff_rate (currency/kWh)
 License
 MIT License
 
+
+
+
+Change to the file for new feature
