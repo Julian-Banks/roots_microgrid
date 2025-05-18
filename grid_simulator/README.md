@@ -62,3 +62,7 @@ tariff_rate (currency/kWh)
 ### License
 MIT License
 
+
+
+
+Change to the file for new feature
