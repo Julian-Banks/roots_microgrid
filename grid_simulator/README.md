@@ -5,7 +5,9 @@
 ## Overview
 Python framework for simulating grid-connected microgrid systems with battery storage, solar generation, and load demand modeling.
 
+
 ## Architecture
+
 ```mermaid
 graph TD
     Solar[Solar Simulator] -->|Generation| Battery[Battery System]
@@ -14,6 +16,7 @@ graph TD
     Battery -->|Storage Levels| Microgrid
     Microgrid -->|Control Signals| Solar
     Microgrid -->|Control Signals| Grid
+    
 Core Components
 Battery System (battery_simulator.py)
 Tracks state of charge (SOC)
