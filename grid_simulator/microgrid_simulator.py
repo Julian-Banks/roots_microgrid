@@ -108,7 +108,6 @@ class microGridSimulator:
             discharged_this_step, unmet_demand_this_step = (
                 self.battery.discharge(abs(energy_balance_with_grid))
             )
-
         result = {
             'to_purchase': to_purchase,
             'charged_this_step': charged_this_step,
@@ -116,7 +115,6 @@ class microGridSimulator:
             'excess_this_step': excess_this_step,
             'unmet_demand_this_step': unmet_demand_this_step,
         }
-
         return result
 
     def artificial_positive_energy_balance(
@@ -139,7 +137,6 @@ class microGridSimulator:
         print('Purchase request: ', purchase_request)
         charge_capacity = self.battery.get_charge_capacity()
         to_purchase = min(-energy_balance + charge_capacity, purchase_request)
-
         return to_purchase
 
     def negative_energy_balance(
@@ -155,14 +152,10 @@ class microGridSimulator:
         Returns:
             Float: Amount to be purchased from the grid, inclusive of purchase request.
         """
-
         # Need to draw energy from grid or battery.
-
         # Get the ammount from the battery is available to be discharge.
         discharge_capacity = self.battery.get_discharge_capacity()
-
         # energy_balance + purchase_request  is less than 0
-
         if discharge_capacity > abs(energy_balance + purchase_request):
             to_discharge = abs(energy_balance + purchase_request)
         else:
