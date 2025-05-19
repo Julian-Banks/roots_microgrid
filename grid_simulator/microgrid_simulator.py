@@ -99,9 +99,7 @@ class microGridSimulator:
                     energy_balance=energy_balance,
                     purchase_request=purchase_request,
                 )
-
         energy_balance_with_grid = energy_balance + to_purchase
-
         if energy_balance_with_grid > 0:
             charged_this_step, excess_this_step = self.battery.charge(
                 energy_balance_with_grid
