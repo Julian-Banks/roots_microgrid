@@ -1,0 +1,21 @@
+[project]
+name = "roots_grid_simulator"
+dynamic = ["version"]
+dependencies = []
+requires-python = ">=3.11" #Pretty arbarity choice of required version. 
+authors = [
+    {name = "Julian Banks", email = "julianrowlandbanks@gmail.com"}
+]
+description = "A module to simulate energy flow through a microgrid with mixed enenergy sources."
+readme = "README.md"
+license = "MIT"
+keywords = ["micro-grid", "energy management"]
+
+[tool.black]
+line-length = 79
+target-version = ["py311"]
+skip-string-normalization = true
+
+#[tool.isort]
+#profile = "black"
+#line_length = 79
