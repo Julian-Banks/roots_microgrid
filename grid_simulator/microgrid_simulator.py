@@ -1,10 +1,10 @@
 import pandas as pd
 from io import StringIO
 from typing import Dict, Tuple
-from battery_simulator import BatterySimulator
-from solar_simulator import SolarSimulator
-from load_simulator import LoadSimulator
-from grid_feed_in_simulator import GridFeedInSimulator
+from grid_simulator.battery_simulator import BatterySimulator
+from grid_simulator.solar_simulator import SolarSimulator
+from grid_simulator.load_simulator import LoadSimulator
+from grid_simulator.grid_feed_in_simulator import GridFeedInSimulator
 
 
 class microGridSimulator:
@@ -132,9 +132,6 @@ class microGridSimulator:
         # Energy balance -5kwh, purchase request is 8 kwh, charge_capacity is 2kWh
         # to_purchase = min( -Energy_balance + max usable charge energy, purchase request)
         # to_purchase = min (- (-5) + 2, 8) = 7
-        print('In artificial positive energy balance')
-        print('Energy balance: ', energy_balance)
-        print('Purchase request: ', purchase_request)
         charge_capacity = self.battery.get_charge_capacity()
         to_purchase = min(-energy_balance + charge_capacity, purchase_request)
         return to_purchase
@@ -154,7 +151,10 @@ class microGridSimulator:
         """
         # Need to draw energy from grid or battery.
         # Get the ammount from the battery is available to be discharge.
-        discharge_capacity = self.battery.get_discharge_capacity()
+        discharge_capacity = (
+            self.battery.get_discharge_capacity()
+            * self.battery.battery_efficiency
+        )
         # energy_balance + purchase_request  is less than 0
         if discharge_capacity > abs(energy_balance + purchase_request):
             to_discharge = abs(energy_balance + purchase_request)

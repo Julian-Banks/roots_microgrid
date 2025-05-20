@@ -1,4 +1,4 @@
-from microgrid_simulator import microGridSimulator
+from grid_simulator.microgrid_simulator import microGridSimulator
 from typing import Dict
 import unittest
 
@@ -316,13 +316,16 @@ class TestMicroGridSimulator(unittest.TestCase):
         result = self.microgrid_simulator.update_state(action=0)
 
         expected_discharge = 8
-        expected_soc = (
-            0.50
-            - (
-                expected_discharge
-                / self.microgrid_simulator.battery.battery_efficiency
-            )
-            / 100
+        expected_soc = round(
+            (
+                0.50
+                - (
+                    expected_discharge
+                    / self.microgrid_simulator.battery.battery_efficiency
+                )
+                / 100
+            ),
+            12,
         )  # 0.50 - (8/0.9)/100 = 0.4111
         expected_result = {
             'to_purchase': 0,
@@ -507,13 +510,16 @@ class TestMicroGridSimulator(unittest.TestCase):
         result = self.microgrid_simulator.update_state(action=4)
 
         expected_discharge = 6
-        expected_soc = (
-            0.48
-            - (
-                expected_discharge
-                / self.microgrid_simulator.battery.battery_efficiency
-            )
-            / 100
+        expected_soc = round(
+            (
+                0.48
+                - (
+                    expected_discharge
+                    / self.microgrid_simulator.battery.battery_efficiency
+                )
+                / 100
+            ),
+            12,
         )  # 0.48 - (6/0.9)/100 = 0.4133333333
         expected_purchase = 4
         expected_result = {

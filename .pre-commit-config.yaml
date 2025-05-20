@@ -3,3 +3,11 @@ repos:
     rev: 25.1.0
     hooks:
       - id: black
+
+  - repo: local
+    hooks:
+      - id: run-unittests
+        name: Run Python Unit Tests
+        entry: .git/hooks/run-tests.sh
+        language: script
+        pass_filenames: false

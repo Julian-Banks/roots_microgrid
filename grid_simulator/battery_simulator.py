@@ -110,7 +110,6 @@ class BatterySimulator:
             discharged = max_discharge_energy
             self.update_soc(-discharged / self.battery_efficiency)
             unmet_demand = discharge_energy - (max_discharge_energy)
-
         return discharged, unmet_demand
 
     def get_discharge_capacity(self) -> float:
@@ -140,7 +139,8 @@ class BatterySimulator:
     def update_soc(self, energy: float) -> float:
         self.battery_soc += energy / self.battery_capacity
         # I was getting issues with floating point precision. 6 decimal points should be enough??? Maybe I should use soc out of 100 rather than 0->1.
-        # self.battery_soc=round(self.battery_soc,6)
+        # I had commented out the below line (self.battery_soc=round....) and I can't remember why I did.... But I was getting the floating point errors again so I'm un-commenting it.
+        self.battery_soc = round(self.battery_soc, 12)
         return self.battery_soc
 
     def _set_battery_soc_cutoff(self, soc_cutoff: float) -> float:

@@ -45,7 +45,7 @@ class GridFeedInSimulator:
 
     def setup_tariff_structure(self) -> list:
         # Might find a way of either setting rules and generating these or just reading from a list with timestamps and values.
-        data = pd.read_csv("data.csv")
+        data = pd.read_csv("grid_simulator/data.csv")
         tariffs = data["tou_tariff"].tolist()
         return tariffs
 

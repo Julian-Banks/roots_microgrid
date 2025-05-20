@@ -1,4 +1,4 @@
-from load_simulator import LoadSimulator
+from grid_simulator.load_simulator import LoadSimulator
 import unittest
 
 

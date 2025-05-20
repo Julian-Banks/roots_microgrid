@@ -1,4 +1,4 @@
-from solar_simulator import SolarSimulator
+from grid_simulator.solar_simulator import SolarSimulator
 import unittest
 
 

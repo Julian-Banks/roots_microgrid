@@ -14,6 +14,6 @@ class LoadSimulator:
 
     def setup_loads(self) -> list:
         # I want to add timesteps to the data.
-        df = pd.read_csv("data.csv")
+        df = pd.read_csv("grid_simulator/data.csv")
         loads = df["load"].tolist()
         return loads

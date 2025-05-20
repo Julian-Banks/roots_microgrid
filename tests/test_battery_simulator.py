@@ -1,4 +1,4 @@
-from battery_simulator import BatterySimulator
+from grid_simulator.battery_simulator import BatterySimulator
 from typing import Dict
 import unittest
 
