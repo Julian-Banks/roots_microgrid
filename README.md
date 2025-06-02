@@ -115,29 +115,20 @@ class SolarSimulator:
 
 ## Installation
 ```bash
-git clone https://github.com/Julian-Banks/grid-simulator
-pip install -r requirements.txt
 ```
 
 ## CLI Usage
 ```bash
-# Run simulation with default parameters
-python -m grid_simulator.microgrid_simulator --steps 1440
 
-# Generate solar forecast report
-python -m grid_simulator.solar_simulator --output forecast.csv
 ```
 
 ## Work Remaining
-- **GUI Development**: Basic CLI implemented, web interface needed
+
 - **Data Validation**: Add input schema validation for CSV files
-- **Error Handling**: Missing exception handling for grid connection failures
+
 - **Documentation**: 
-  - Complete parameter descriptions in docstrings
-  - Add module-level documentation
-- **Testing**:
-  - Expand test coverage for edge cases
-  - Add integration tests
+  - 
+  -
 
 ## License
 MIT License
