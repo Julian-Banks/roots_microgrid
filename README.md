@@ -77,24 +77,32 @@ class SolarSimulator:
 
 ### Microgrid Controller (`microgrid_simulator.py`)
 - **MicroGridSimulator**: Core coordination of energy components
-  - `step_state`: Advance simulation by one time step
-  - `update_state`: Adjust system state based on control signals
-  - `artificial_positive_energy_balance`: Simulate forced energy surplus scenarios
-  - `negative_energy_balance`: Handle energy deficit conditions
-  - `positive_energy_balance`: Manage energy surplus distribution
+  - `step`: Advance simulation by one time step
+  - `update_state`: Fetch the state for the current timestep
+  - `get_current_state`: Fetches the current state. 
+  - `balance_energy`: Main logic function. Adjust the system state based on control signals and ensure energy balance. 
+  - `artificial_positive_energy_balance`: Runs when the energy balance + the purchase request is positive. Determines how much of the purchase request can be fulfilled.
+  - `negative_energy_balance`: Runs when the Energy balance is negative. Decicdes where the energy should come from.
+  - `positive_energy_balance`: Runs when the energy balance is positive, determines if any extra energy has been requested to charge the battery
+  - `calculate_to_purchase`: Implements logic flow to determine the energy balance and check how much energy should be purchased.
+  - `balance_with_battery`: Charges or Discharges the battery to meet need of energy_balance_with_grid.
 
 ### Battery System (`battery_simulator.py`)
 - **BatterySimulator**: Lithium-ion storage management
-  - `charge`: Calculate actual charge considering C-rate limits
-  - `discharge`: Determine available discharge energy with SOC constraints
-  - `get_charge_capacity`: Query maximum charge rate
-  - `get_discharge_capacity`: Query maximum discharge rate
+  - `charge`: Charges the battery with charge_energy. Implements: Max Charge rate, Battery Efficiency, Max capacity. 
+  - `discharge`: Discharges energy from the battery to meet the needs of discharge_energy. Implements: Max discharge rate (C-rate), Battery Efficiency, Min SOC.
+  - `update_soc`: Updates the battery's SOC. 
+  - `get_charge_capacity`: Get the amount of energy that can go into the battery. Note that the amount of energy used would be energy_in/battery_efficiency
+  - `get_discharge_capacity`: Get the amount of energy the battery can discharge. Not that the amount usable energy would by discharge_capacity*battery_efficiency
+  - `get_battery_energy`: Get the amount of energy stored in the battery.
+  - `get_soc`: Gets the current soc
 
 ### Grid Interface (`grid_feed_in_simulator.py`)
 - **GridFeedInSimulator**: Power exchange management
-  - `purchase_energy`: Calculate grid energy acquisition costs
+  - `purchase_energy`:  Purchase energy from the grid, return amount purchased and cost.
+  - `calculate_cost`: Calculate the cost of energy purchased. 
   - `setup_tariff_structure`: Initialize time-based pricing model
-  - `get_tariff_forecast`: Retrieve tariff rate predictions
+  - `get_current_tariff`: Get the current cost of energy.
 
 ### Solar Generation (`solar_simulator.py`)
 - **SolarSimulator**: Photovoltaic output modeling
@@ -102,7 +110,8 @@ class SolarSimulator:
 
 ### Load Simulation (`load_simulator.py`)
 - **LoadSimulator**: Energy demand modeling
-  - `setup_loads`: Configure consumption profiles
+  - `setup_loads`: Loads the load data from csv. 
+  - `get_current_load`: Get the current load
 
 ## Installation
 ```bash
