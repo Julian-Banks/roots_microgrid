@@ -6,11 +6,12 @@ Python framework for simulating energy flows in grid-connected microgrid systems
 ![Architecture Diagram](diagram.png)
 ```mermaid
 graph TD
-    Solar[Solar Simulator] -->|Generation| Microgrid[Microgrid Controller]
-    Grid[Grid Interface] -->|Import/Export| Microgrid[Microgrid Controller]
-    Load[Load Simulator] --> Microgrid[Microgrid Controller]
+    Solar[Solar Simulator] -->|Generation| Inverter
+    Inverter[Inverter Simulator] --> |Renewable Power| Microgrid[Microgrid Controller]
+    Grid[Grid Interface] -->|Import| Microgrid[Microgrid Controller]
+    Load[Load Simulator] --> |Energy Load| Microgrid[Microgrid Controller]
     Battery -->|Storage Levels| Microgrid
-    Microgrid -->|Control Signals| Grid
+    Microgrid -->|Export| Grid
     Microgrid -->|Control Signals| Battery
 ```
 
@@ -25,53 +26,14 @@ graph TD
 class MicroGridSimulator:
     """Core controller for microgrid energy flow simulation"""
     
-    def step_state(self, timestep: int) -> None:
+    def step(self, timestep: int) -> None:
         """Advance simulation by one time step"""
         
-    def update_state(self, action: float):
+    def balance_energy(self, action: float):
         """Adjust system state based on control signals"""
+
 ```
 
-### Battery System (`battery_simulator.py`)
-- Models lithium-ion battery storage
-- Tracks state of charge (SOC) and efficiency losses
-- Manages charge/discharge constraints
-
-```python
-class BatterySimulator:
-    """Lithium-ion battery storage simulation"""
-    
-    def charge(self, energy: float) -> Tuple[float, float]:
-        """Calculate actual charge considering C-rate and efficiency"""
-        
-    def discharge(self, energy: float) -> Tuple[float, float]:
-        """Calculate available discharge energy with SOC limits"""
-```
-
-### Grid Interface (`grid_feed_in_simulator.py`)
-- Simulates power exchange with main grid
-- Implements time-of-use tariff system
-- Enforces grid connection limits
-
-```python
-class GridFeedInSimulator:
-    """Manage grid energy purchase/sellback operations"""
-    
-    def purchase_energy(self, amount: float) -> Tuple[float, float]:
-        """Calculate cost for grid energy purchase"""
-```
-
-### Solar Generation (`solar_simulator.py`)
-- Models photovoltaic system output
-- Generates time-based production forecasts
-
-```python
-class SolarSimulator:
-    """Photovoltaic generation simulation"""
-    
-    def setup_solar_generation(self) -> list:
-        """Initialize solar production profile"""
-```
 
 ## Module Reference
 
@@ -96,11 +58,15 @@ class SolarSimulator:
   - `get_discharge_capacity`: Get the amount of energy the battery can discharge. Not that the amount usable energy would by discharge_capacity*battery_efficiency
   - `get_battery_energy`: Get the amount of energy stored in the battery.
   - `get_soc`: Gets the current soc
+- **To DO** 
+  -`Public API`: The main interface that other programs (RL in our case) can interface with the simulator. (I don't actually know where the best place to write this is, main.py, init.py????)
 
 ### Grid Interface (`grid_feed_in_simulator.py`)
 - **GridFeedInSimulator**: Power exchange management
   - `purchase_energy`:  Purchase energy from the grid, return the amount purchased and the cost.
   - `calculate_cost`: Calculate the cost of energy purchased. 
+
+- **To Do**
   - `setup_tariff_structure`: Initialize time-based pricing model
   - `get_current_tariff`: Get the current cost of energy.
 
@@ -108,16 +74,28 @@ class SolarSimulator:
 - **SolarSimulator**: Photovoltaic output modeling
   - `setup_solar_generation`: Initialize production profile.
   - `get_current_solar_generation`: Get the value of solar production for the current timestep.
+- **To Do**:
+  - `forecast_solar_generation`: Possible to implement cheats for this to test the RL aspect. Implementing something is high priority, implementing something good is much lower. 
 
 ### Load Simulation (`load_simulator.py`)
 - **LoadSimulator**: Energy demand modeling
   - `setup_loads`: Loads the load data from csv. 
   - `get_current_load`: Get the current load
+- **To Do**:
+  - `forecast_load_generation`: Same as solar forecast. NB to have something but doesn't have to be good. 
 
 ### Generator Simulation (`generator_simulator.py`)
 - **GeneratorSimulator**: Model a backup generator.
-  - `setup_generators`: set the capacity and specs of the generator.
+  - `setup_generators`: set the generator's capacity and specs.
   - `run_generators`: Generates the requested amount of energy and calculates the cost.
+
+### Inverter Simulation (`inverter_simulator.py`)
+- **GeneratorSimulator**: Model a Inverter efficiencies 
+  - To Do
+
+### Moveable Load Simulation ('moveable_load_simulator.py`)
+- **MoveableLoadSimulator**: Model moveable loads like HVAC
+  - To Do. 
 
 ## Installation
 ```bash
