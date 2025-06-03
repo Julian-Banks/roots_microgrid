@@ -15,39 +15,33 @@ class BatterySimulator:
         time_interval: float = 1,
     ):
 
-        # yusis, should I just make a battery module to import. Might make this a whole lot more readable.
         ### State of Charge stuff (SOC)
         self.battery_soc: float = battery_soc
         self.battery_soc_cuttoff: float = (
             battery_soc_cuttoff  # Lower limit to the Battery_soc
         )
-
         ### Charge and discharge stuff. Maybe I can use C_rate for both? Must look up more info.
         # Note: C_rate is in amps usually, I am currently using it in energy
-        self.battery_C_rate: float = (
-            battery_C_rate  # C rate for dis/charging the battery. 1C is it can charge fully in 1 hour. 0.2 means it can charge fully in 5 hours (charges at a rate of 0.2C)
-        )
-        self.battery_efficiency: float = (
-            battery_efficiency  # Charge and discharge efficiency of the battery
-        )
-        self.time_interval: float = (
-            time_interval  # time interval for charges and discharges, should it be here? (Unit: hours)
-        )
-
+        # C rate for dis/charging the battery. 1C is it can charge fully in 1 hour. 0.2 means it can charge fully in 5 hours (charges at a rate of 0.2C)
+        self.battery_C_rate: float = battery_C_rate
+        # Charge and discharge efficiency of the battery
+        self.battery_efficiency: float = battery_efficiency
+        # time interval for charges and discharges, should it be here? (Unit: hours)
+        self.time_interval: float = time_interval
         ### Metrics in kWh for understanding and conversions.
         self.battery_capacity: float = battery_capacity
 
     def charge(self, charge_energy: float) -> Tuple[float, float]:
-        # energy that is being passed in: Charge energy. (UNITS: kWh) (SHOULD IT BE kW???? and be a power rather than an energy if I am using a time interval???)
-        # default time stamp is 1 hour. Need to add logic that handles different times.
-        # determin how much of the available charge_energy can be stored in the battery.
-        # There are two catch points. Charge Rate and Available Battery Capacity.
-        # example
-        # I have 10kw available for 1 hour (10kWh)
-        # Charge Rate is only 8kWh
-        # So I immediately have 2kWh excess
-        # Of that 8kWh there is only 5kWh available capacity in the battery
-        # So in the end 5kWh Goes to the battery. and 5kWh is excess.
+        """
+        Uses: Charges the battery with charge_energy.
+        Impliments: Max Charge rate, Battery Efficiency, Max capacity.
+
+        Args:
+            charge_energy (float): amount of energy that is available to charge the battery.
+
+        Returns:
+            Tuple[float, float]: (charged, excess) The amount of energy that was stored in the battery and any energy that is excess
+        """
 
         excess: float = 0
         charged: float = 0
@@ -70,28 +64,17 @@ class BatterySimulator:
 
         return charged, excess
 
-    # Get the amount of energy that can go into the battery. Note that the amount of energy used would be energy_in/battery_efficiency
-    def get_charge_capacity(self) -> float:
-        # get the available capcity
-        available_capacity: float = (
-            self.battery_capacity - self.get_battery_energy()
-        )
-
-        # Calculate the max energy that can be used by the battery based on its max rate of charge.
-        max_charge_rate: float = (
-            self.battery_C_rate * self.battery_capacity * self.time_interval
-        )
-
-        # Return the smaller of the two.
-        charge_capacity: float = min(max_charge_rate, available_capacity)
-
-        return charge_capacity
-
     def discharge(self, discharge_energy: float) -> Tuple[float, float]:
-        # Two things to watch out for:
-        # 1. The max discharge rate.
-        # 2. Depth of discharge setpoints.
+        """
+        Use: Discharges energy from the battery to meet the needs of discharge_energy.
+        Impliments: Max discharge rate (C-rate), Battery Efficiency, Min SOC.
 
+        Args:
+            discharge_energy (float): amount of energy to discharge.
+
+        Returns:
+            Tuple[float, float]: discharged, unmet_demand
+        """
         discharged: float = 0
         unmet_demand: float = 0
 
@@ -112,8 +95,33 @@ class BatterySimulator:
             unmet_demand = discharge_energy - (max_discharge_energy)
         return discharged, unmet_demand
 
-    def get_discharge_capacity(self) -> float:
+    def update_soc(self, energy: float) -> float:
+        self.battery_soc += energy / self.battery_capacity
+        # I was getting issues with floating point precision. 6 decimal points should be enough??? Maybe I should use soc out of 100 rather than 0->1.
+        # I had commented out the below line (self.battery_soc=round....) and I can't remember why I did.... But I was getting the floating point errors again so I'm un-commenting it.
+        self.battery_soc = round(self.battery_soc, 12)
+        return self.battery_soc
 
+    # Getter Functions
+    def get_charge_capacity(self) -> float:
+        """Get the amount of energy that can go into the battery. Note that the amount of energy used would be energy_in/battery_efficiency"""
+        # get the available capcity
+        available_capacity: float = (
+            self.battery_capacity - self.get_battery_energy()
+        )
+
+        # Calculate the max energy that can be used by the battery based on its max rate of charge.
+        max_charge_rate: float = (
+            self.battery_C_rate * self.battery_capacity * self.time_interval
+        )
+
+        # Return the smaller of the two.
+        charge_capacity: float = min(max_charge_rate, available_capacity)
+
+        return charge_capacity
+
+    def get_discharge_capacity(self) -> float:
+        """Get the amount of energy the battery can discharge. Not that the amount usable energy would by discharge_capacity*battery_efficiency"""
         # I reluctantly used round(soc-soc_cutoff,6) because it was giving floating point precision issues...
         avail_battery_energy: float = self.battery_capacity * round(
             self.get_soc() - self.battery_soc_cuttoff, 6
@@ -136,13 +144,7 @@ class BatterySimulator:
     def get_soc(self) -> float:
         return self.battery_soc
 
-    def update_soc(self, energy: float) -> float:
-        self.battery_soc += energy / self.battery_capacity
-        # I was getting issues with floating point precision. 6 decimal points should be enough??? Maybe I should use soc out of 100 rather than 0->1.
-        # I had commented out the below line (self.battery_soc=round....) and I can't remember why I did.... But I was getting the floating point errors again so I'm un-commenting it.
-        self.battery_soc = round(self.battery_soc, 12)
-        return self.battery_soc
-
+    # Internal funcs for Testing
     def _set_battery_soc_cutoff(self, soc_cutoff: float) -> float:
         """
         Internal func for setting SOC cutoff during testing.

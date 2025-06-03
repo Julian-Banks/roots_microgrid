@@ -14,7 +14,8 @@ class GeneratorSimulator:
     def run_generators(
         self, requested_power: float, time_interval: float
     ) -> Tuple:
-        """_summary_
+        """
+        Generates the requested amount of energy and calculates the cost.
 
         Args:
             requested_power (float): The amount of power needed from the generators.
@@ -29,7 +30,10 @@ class GeneratorSimulator:
                 requested_power,
                 time_interval * requested_power * self.cost_per_kwh,
             )
+        else:
+            return (
+                self.capacity,
+                time_interval * self.cost_per_kwh * self.capacity,
+            )
 
-        return self.capacity, time_interval * self.cost_per_kwh * self.capacity
-
-    # should impliment a cost curve since it costs more to run them not at full power.
+        # should impliment a cost curve since it costs more to run them not at full power.
