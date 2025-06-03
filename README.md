@@ -99,19 +99,25 @@ class SolarSimulator:
 
 ### Grid Interface (`grid_feed_in_simulator.py`)
 - **GridFeedInSimulator**: Power exchange management
-  - `purchase_energy`:  Purchase energy from the grid, return amount purchased and cost.
+  - `purchase_energy`:  Purchase energy from the grid, return the amount purchased and the cost.
   - `calculate_cost`: Calculate the cost of energy purchased. 
   - `setup_tariff_structure`: Initialize time-based pricing model
   - `get_current_tariff`: Get the current cost of energy.
 
 ### Solar Generation (`solar_simulator.py`)
 - **SolarSimulator**: Photovoltaic output modeling
-  - `setup_solar_generation`: Initialize production profile
+  - `setup_solar_generation`: Initialize production profile.
+  - `get_current_solar_generation`: Get the value of solar production for the current timestep.
 
 ### Load Simulation (`load_simulator.py`)
 - **LoadSimulator**: Energy demand modeling
   - `setup_loads`: Loads the load data from csv. 
   - `get_current_load`: Get the current load
+
+### Generator Simulation (`generator_simulator.py`)
+- **GeneratorSimulator**: Model a backup generator.
+  - `setup_generators`: set the capacity and specs of the generator.
+  - `run_generators`: Generates the requested amount of energy and calculates the cost.
 
 ## Installation
 ```bash
