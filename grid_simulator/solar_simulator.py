@@ -12,6 +12,7 @@ class SolarSimulator:
         self.solar_generation = self.setup_solar_generation()
 
     def setup_solar_generation(self) -> list:
+        """Load the solar generation"""
         df = pd.read_csv("grid_simulator/data.csv")
         solar_generation = df["solar_gen"].tolist()
         return solar_generation

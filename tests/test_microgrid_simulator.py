@@ -33,7 +33,7 @@ class TestMicroGridSimulator(unittest.TestCase):
 
         # Set the microgrid_simulator to the last step of the simulation.
         last_time_step = 8759
-        self.microgrid_simulator.step_state(last_time_step)
+        self.microgrid_simulator.update_state(last_time_step)
         # Assert that the last state is correct (with battery_soc set to 0.5)
         state = self.microgrid_simulator.get_current_state()
         self.assertDictEqual(state, last_state)
@@ -84,8 +84,8 @@ class TestMicroGridSimulator(unittest.TestCase):
             load=2, solar_gen=10, tou_tariff=1, battery_soc=0.90
         )
 
-        # Call the update_state_func
-        result = self.microgrid_simulator.update_state(action=4)
+        # Call the balance_energy_func
+        result = self.microgrid_simulator.balance_energy(action=4)
 
         # this is the total amount needed to get to a full battery, 8 is the amount that will come from the energy balance.
         expected_to_purchase = (
@@ -120,7 +120,7 @@ class TestMicroGridSimulator(unittest.TestCase):
         )
 
         # Call the update_staete func
-        result = self.microgrid_simulator.update_state(action=1)
+        result = self.microgrid_simulator.balance_energy(action=1)
 
         # Expected to charge energy_balance + to purchase with efficiency applied.
         purchase_request = 1
@@ -152,7 +152,7 @@ class TestMicroGridSimulator(unittest.TestCase):
             load=2, solar_gen=10, tou_tariff=1, battery_soc=0.90
         )
 
-        result = self.microgrid_simulator.update_state(action=0)
+        result = self.microgrid_simulator.balance_energy(action=0)
 
         energy_balance = 8
         purchase_request = 0
@@ -186,7 +186,7 @@ class TestMicroGridSimulator(unittest.TestCase):
             load=2, solar_gen=10, tou_tariff=1, battery_soc=0.90
         )
 
-        result = self.microgrid_simulator.update_state(action=2)
+        result = self.microgrid_simulator.balance_energy(action=2)
 
         energy_balance = 8
         purchase_request = 2
@@ -220,7 +220,7 @@ class TestMicroGridSimulator(unittest.TestCase):
         )
 
         # request to purchase 6kWh
-        result = self.microgrid_simulator.update_state(action=6)
+        result = self.microgrid_simulator.balance_energy(action=6)
 
         # Since the energy balance is much higer than the available charge capacity the expected charge is the available capacity with efficiency applied.
         expected_charge = 8.0
@@ -251,7 +251,7 @@ class TestMicroGridSimulator(unittest.TestCase):
             load=2, solar_gen=14, tou_tariff=1, battery_soc=0.92
         )
 
-        result = self.microgrid_simulator.update_state(action=4)
+        result = self.microgrid_simulator.balance_energy(action=4)
 
         expected_charge = 8.0
 
@@ -280,7 +280,7 @@ class TestMicroGridSimulator(unittest.TestCase):
             load=2, solar_gen=14, tou_tariff=1, battery_soc=0.92
         )
 
-        result = self.microgrid_simulator.update_state(action=0)
+        result = self.microgrid_simulator.balance_energy(action=0)
 
         expected_charge = 8.0
 
@@ -313,7 +313,7 @@ class TestMicroGridSimulator(unittest.TestCase):
         )
 
         # Get the result with 0 purchase request
-        result = self.microgrid_simulator.update_state(action=0)
+        result = self.microgrid_simulator.balance_energy(action=0)
 
         expected_discharge = 8
         expected_soc = round(
@@ -360,7 +360,7 @@ class TestMicroGridSimulator(unittest.TestCase):
         )
 
         # Get the result with 8kWh purchase request
-        result = self.microgrid_simulator.update_state(action=8)
+        result = self.microgrid_simulator.balance_energy(action=8)
 
         expected_soc = 0.5
         expected_result = {
@@ -396,7 +396,7 @@ class TestMicroGridSimulator(unittest.TestCase):
         )
 
         # Get the result with 8kWh purchase request
-        result = self.microgrid_simulator.update_state(action=10)
+        result = self.microgrid_simulator.balance_energy(action=10)
 
         expected_charge = (
             -8 + 10
@@ -436,7 +436,7 @@ class TestMicroGridSimulator(unittest.TestCase):
             load=12, solar_gen=2, tou_tariff=1, battery_soc=0.48
         )
 
-        result = self.microgrid_simulator.update_state(action=0)
+        result = self.microgrid_simulator.balance_energy(action=0)
 
         expected_discharge = (
             8 * self.microgrid_simulator.battery.battery_efficiency
@@ -471,7 +471,7 @@ class TestMicroGridSimulator(unittest.TestCase):
             load=12, solar_gen=2, tou_tariff=1, battery_soc=0.48
         )
 
-        result = self.microgrid_simulator.update_state(action=2)
+        result = self.microgrid_simulator.balance_energy(action=2)
 
         expected_discharge = (
             8 * self.microgrid_simulator.battery.battery_efficiency
@@ -507,7 +507,7 @@ class TestMicroGridSimulator(unittest.TestCase):
             load=12, solar_gen=2, tou_tariff=1, battery_soc=0.48
         )
 
-        result = self.microgrid_simulator.update_state(action=4)
+        result = self.microgrid_simulator.balance_energy(action=4)
 
         expected_discharge = 6
         expected_soc = round(

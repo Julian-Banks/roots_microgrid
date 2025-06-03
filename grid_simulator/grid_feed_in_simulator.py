@@ -23,8 +23,18 @@ class GridFeedInSimulator:
         self.timestep: int = 0
 
     def purchase_energy(self, purchase_amount: float) -> Tuple[float, float]:
+        """
+        Use: Purchase energy from the grid.
 
+        Args:
+            purchase_amount (float): Amount of energy to be purchased
+
+        Returns:
+            Tuple[float,float](purchased_energy, cost): Amount of energy purchased, the cost of energy.
+        """
+        # Can impliment loadshedding logic here.
         purchased_energy: float = purchase_amount
+
         cost: float = self.calculate_cost(purchased_energy)
 
         return purchased_energy, cost
@@ -33,25 +43,14 @@ class GridFeedInSimulator:
         cost: float = purchased_energy * self.get_current_tariff()
         return cost
 
-    def get_current_tariff(self, timestep: int) -> float:
-        return self.tariffs[timestep]
-
-    # I don't think I want to keep seperate timestamps....
-    # def get_timestep(self):
-    #     return self.timestep
-
-    # def set_timestep(self,timestep):
-    #     self.timestep  = timestep
-
     def setup_tariff_structure(self) -> list:
         # Might find a way of either setting rules and generating these or just reading from a list with timestamps and values.
         data = pd.read_csv("grid_simulator/data.csv")
         tariffs = data["tou_tariff"].tolist()
         return tariffs
 
-    def get_data(self):
-        # In simulation this won't include data from what was actually drawn from the Grid. Data of what was actually used from the grid will be used to validate the simulations.
-        pass
+    def get_current_tariff(self, timestep: int) -> float:
+        return self.tariffs[timestep]
 
     ##### To do #######
     def get_tariff_forecast(self, current_step: int, forecast_length: int):
@@ -63,4 +62,8 @@ class GridFeedInSimulator:
         pass
 
     def transformer(self):
+        pass
+
+    def get_data(self):
+        # In simulation this won't include data from what was actually drawn from the Grid. Data of what was actually used from the grid will be used to validate the simulations.
         pass
