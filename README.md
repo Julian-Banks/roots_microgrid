@@ -103,7 +103,6 @@ class MicroGridSimulator:
 
 ## CLI Usage
 ```bash
-
 ```
 
 ## Work Remaining
