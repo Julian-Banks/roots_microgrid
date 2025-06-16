@@ -87,7 +87,9 @@ class MicroGridSimulator:
 ### Generator Simulation (`generator_simulator.py`)
 - **GeneratorSimulator**: Model a backup generator.
   - `setup_generators`: set the generator's capacity and specs.
-  - `run_generators`: Generates the requested amount of energy and calculates the cost.
+  - `run_generators`: Generates the requested amount of energy.
+- **To Do**
+  - `calculate_generator_cost`: calculate the cost of generating the required energy.
 
 ### Inverter Simulation (`inverter_simulator.py`)
 - **GeneratorSimulator**: Model a Inverter efficiencies 
