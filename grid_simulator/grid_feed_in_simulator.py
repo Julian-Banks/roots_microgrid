@@ -56,7 +56,10 @@ class GridFeedInSimulator:
     def get_tariff_forecast(self, current_step: int, forecast_length: int):
         # How is data going to be stored?
         # is it going to have timestamps? I kinda like this as a way of making sure alles is doing the right thing across modules.
-        pass
+        tariff_forecast = self.tariffs[
+            current_step : current_step + forecast_length
+        ]
+        return tariff_forecast
 
     def loadshedding_forecast(self):
         pass
