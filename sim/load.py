@@ -1,8 +1,9 @@
 from typing import Tuple
 import pandas as pd
+from sim import INPUT_FILE
 
 
-class LoadSimulator:
+class Load:
 
     def __init__(self):
         # Super keen to set up some aircon units that would get initialised here!!!
@@ -14,6 +15,6 @@ class LoadSimulator:
 
     def setup_loads(self) -> list:
         # I want to add timesteps to the data.
-        df = pd.read_csv("grid_simulator/data.csv")
+        df = pd.read_csv(INPUT_FILE)
         loads = df["load"].tolist()
         return loads

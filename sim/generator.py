@@ -2,7 +2,7 @@ from typing import Tuple
 import pandas as pd
 
 
-class GeneratorSimulator:
+class Generator:
     def __init__(
         self,
         capacity: float = 500,
@@ -12,7 +12,9 @@ class GeneratorSimulator:
         # initialise the generators and characteristics.
         # This doesn't feel very smart. The idea was along the lines of wanting to have different generators with different sizes within this module but I'm not going to dive into that now.
         self.setup_generators(
-            capacity=500, cost_diesel=20, litre_diesel_per_kWh=0.3
+            capacity=capacity,
+            cost_diesel=cost_diesel,
+            litre_diesel_per_kWh=litre_diesel_per_kWh,
         )
 
     def setup_generators(

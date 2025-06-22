@@ -1,11 +1,11 @@
-from grid_simulator.solar_simulator import SolarSimulator
+from sim.solar import Solar
 import unittest
 
 
 class TestSolarSimulator(unittest.TestCase):
 
     def setUp(self):
-        self.solar_simulator = SolarSimulator()
+        self.solar = Solar()
 
     def tearDown(self):
         pass

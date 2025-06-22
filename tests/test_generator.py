@@ -1,16 +1,17 @@
-from grid_simulator.generator_simulator import GeneratorSimulator
+from typing import Generator
+from sim.generator import Generator
 import unittest
 
 
-class TestGeneratorSimulator(unittest.TestCase):
+class TestGenerator(unittest.TestCase):
 
     def setUp(self):
-        self.generator_simulator = GeneratorSimulator(
+        self.generator = Generator(
             capacity=500, cost_diesel=20, litre_diesel_per_kWh=0.3
         )
 
     def tearDown(self):
-        del self.generator_simulator
+        del self.generator
 
     def test_run_generators(self):
 
@@ -20,7 +21,7 @@ class TestGeneratorSimulator(unittest.TestCase):
         # Expected cost is kWh*hour*cost/litre*litre/(hour*kWh)
         expected_cost: float = 250 * 1 * 20 * 0.3
 
-        generated_power, cost = self.generator_simulator.run_generators(
+        generated_power, cost = self.generator.run_generators(
             requested_power, time_interval
         )
 
@@ -43,7 +44,7 @@ class TestGeneratorSimulator(unittest.TestCase):
         # Expected cost is kWh*hour*cost/litre*litre/(hour*kWh)
         expected_cost: float = 500 * 1 * 20 * 0.3
 
-        generated_power, cost = self.generator_simulator.run_generators(
+        generated_power, cost = self.generator.run_generators(
             requested_power, time_interval
         )
 
