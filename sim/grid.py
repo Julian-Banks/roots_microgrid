@@ -1,8 +1,10 @@
+from datetime import time
 from typing import Tuple
 import pandas as pd
+from sim import INPUT_FILE
 
 
-class GridFeedInSimulator:
+class Grid:
     def __init__(
         self,
         feed_in_voltage: float = 240,
@@ -20,32 +22,32 @@ class GridFeedInSimulator:
 
         self.tariffs: list = self.setup_tariff_structure()
 
-        self.timestep: int = 0
-
-    def purchase_energy(self, purchase_amount: float) -> Tuple[float, float]:
+    def purchase_energy(
+        self, purchase_amount: float, timestep: int
+    ) -> Tuple[float, float]:
         """
         Use: Purchase energy from the grid.
 
         Args:
             purchase_amount (float): Amount of energy to be purchased
-
+            timestep (int): Timestep that the energy was purchesed.
         Returns:
             Tuple[float,float](purchased_energy, cost): Amount of energy purchased, the cost of energy.
         """
         # Can impliment loadshedding logic here.
         purchased_energy: float = purchase_amount
 
-        cost: float = self.calculate_cost(purchased_energy)
+        cost: float = self.calculate_cost(purchased_energy, timestep)
 
         return purchased_energy, cost
 
-    def calculate_cost(self, purchased_energy: float) -> float:
-        cost: float = purchased_energy * self.get_current_tariff()
+    def calculate_cost(self, purchased_energy: float, timestep: int) -> float:
+        cost: float = purchased_energy * self.get_current_tariff(timestep)
         return cost
 
     def setup_tariff_structure(self) -> list:
         # Might find a way of either setting rules and generating these or just reading from a list with timestamps and values.
-        data = pd.read_csv("grid_simulator/data.csv")
+        data = pd.read_csv(INPUT_FILE)
         tariffs = data["tou_tariff"].tolist()
         return tariffs
 

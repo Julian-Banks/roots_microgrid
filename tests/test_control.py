@@ -1,15 +1,15 @@
-from grid_simulator.microgrid_simulator import microGridSimulator
+from sim.control import Control
 from typing import Dict
 import unittest
 
 
-class TestMicroGridSimulator(unittest.TestCase):
+class TestControl(unittest.TestCase):
 
     def setUp(self):
-        self.microgrid_simulator = microGridSimulator()
+        self.control = Control()
 
     def tearDown(self):
-        del self.microgrid_simulator
+        del self.control
 
     def test_get_current_state(self):
 
@@ -28,14 +28,14 @@ class TestMicroGridSimulator(unittest.TestCase):
         }
 
         # Assert that the first state is correct (with battery_soc set to 0.5)
-        state = self.microgrid_simulator.get_current_state()
+        state = self.control.get_current_state()
         self.assertDictEqual(state, first_state)
 
         # Set the microgrid_simulator to the last step of the simulation.
         last_time_step = 8759
-        self.microgrid_simulator.update_state(last_time_step)
+        self.control.update_state(last_time_step)
         # Assert that the last state is correct (with battery_soc set to 0.5)
-        state = self.microgrid_simulator.get_current_state()
+        state = self.control.get_current_state()
         self.assertDictEqual(state, last_state)
 
     # if the max usable energy is more thatn the available energy balance. Then you can purchase more energy.
@@ -71,26 +71,22 @@ class TestMicroGridSimulator(unittest.TestCase):
         # to_purchase = max_usable_charge_energy - energy_balance , charged = 10, excess = 0, unmet_load = 0
 
         # Set the battery capcity and get available charge.
-        self.microgrid_simulator.battery._set_battery_capacity(100)
-        self.microgrid_simulator.battery._set_soc(0.90)
-        available_charge_capacity = (
-            self.microgrid_simulator.battery.get_charge_capacity()
-        )
+        self.control.battery._set_battery_capacity(100)
+        self.control.battery._set_soc(0.90)
+        available_charge_capacity = self.control.battery.get_charge_capacity()
         # Check that you have 10kw Available for charge.
         self.assertEqual(available_charge_capacity, 10)
 
         # Set the state to known values: Energy_balance = solar-load = 8
-        self.microgrid_simulator._set_state(
+        self.control._set_state(
             load=2, solar_gen=10, tou_tariff=1, battery_soc=0.90
         )
 
         # Call the balance_energy_func
-        result = self.microgrid_simulator.balance_energy(action=4)
+        result = self.control.balance_energy(action=4)
 
         # this is the total amount needed to get to a full battery, 8 is the amount that will come from the energy balance.
-        expected_to_purchase = (
-            10 / self.microgrid_simulator.battery.battery_efficiency - 8
-        )
+        expected_to_purchase = 10 / self.control.battery.efficiency - 8
 
         expected_result = {
             'to_purchase': expected_to_purchase,
@@ -106,28 +102,26 @@ class TestMicroGridSimulator(unittest.TestCase):
         # Case 2: energy balance is 8kWh, available_charge_capacity = 10kWh, purchase request = 1kWh Output: to_purchase = 1, charged = (8+1)*0.9, excess = 0, unmet_load = 0
 
         # Set the battery capcity and get available charge.
-        self.microgrid_simulator.battery._set_battery_capacity(100)
-        self.microgrid_simulator.battery._set_soc(0.90)
-        available_charge_capacity = (
-            self.microgrid_simulator.battery.get_charge_capacity()
-        )
+        self.control.battery._set_battery_capacity(100)
+        self.control.battery._set_soc(0.90)
+        available_charge_capacity = self.control.battery.get_charge_capacity()
         # Check that you have 10kw Available for charge.
         self.assertEqual(available_charge_capacity, 10)
 
         # Set the state to known values: Energy_balance = solar-load = 8
-        self.microgrid_simulator._set_state(
+        self.control._set_state(
             load=2, solar_gen=10, tou_tariff=1, battery_soc=0.90
         )
 
         # Call the update_staete func
-        result = self.microgrid_simulator.balance_energy(action=1)
+        result = self.control.balance_energy(action=1)
 
         # Expected to charge energy_balance + to purchase with efficiency applied.
         purchase_request = 1
         energy_balance = 8
         expected_charge = (
             energy_balance + purchase_request
-        ) * self.microgrid_simulator.battery.battery_efficiency
+        ) * self.control.battery.efficiency
 
         expected_result = {
             'to_purchase': 1,
@@ -140,25 +134,23 @@ class TestMicroGridSimulator(unittest.TestCase):
 
     def test_case3(self):
         # Case 3: energy balance is 8kWh, available_charge_capacity = 10kWh, purchase request = 0kWh Output: to_purchase = 0, charged = 8*0.9, excess = 0
-        self.microgrid_simulator.battery._set_battery_capacity(100)
-        self.microgrid_simulator.battery._set_soc(0.90)
-        available_charge_capacity = (
-            self.microgrid_simulator.battery.get_charge_capacity()
-        )
+        self.control.battery._set_battery_capacity(100)
+        self.control.battery._set_soc(0.90)
+        available_charge_capacity = self.control.battery.get_charge_capacity()
         # Check that we have 10kw Available for charge.
         self.assertEqual(available_charge_capacity, 10)
 
-        self.microgrid_simulator._set_state(
+        self.control._set_state(
             load=2, solar_gen=10, tou_tariff=1, battery_soc=0.90
         )
 
-        result = self.microgrid_simulator.balance_energy(action=0)
+        result = self.control.balance_energy(action=0)
 
         energy_balance = 8
         purchase_request = 0
         expected_charge = (
             energy_balance + purchase_request
-        ) * self.microgrid_simulator.battery.battery_efficiency  # Note that it is not always expected that the purchase request is actually purchased. We know it should be because the max available charge is less than the energy balance.
+        ) * self.control.battery.efficiency  # Note that it is not always expected that the purchase request is actually purchased. We know it should be because the max available charge is less than the energy balance.
 
         expected_result = {
             'to_purchase': 0,
@@ -174,25 +166,23 @@ class TestMicroGridSimulator(unittest.TestCase):
         self,
     ):  # testing Positive Energy balance path. With Purchase less than max available charge capacity.
         # Case 3: energy balance is 8kWh, available_charge_capacity = 10kWh, purchase request = 2kWh Output: to_purchase = 2, charged = (8+2)*0.9, excess = 0
-        self.microgrid_simulator.battery._set_battery_capacity(100)
-        self.microgrid_simulator.battery._set_soc(0.90)
-        available_charge_capacity = (
-            self.microgrid_simulator.battery.get_charge_capacity()
-        )
+        self.control.battery._set_battery_capacity(100)
+        self.control.battery._set_soc(0.90)
+        available_charge_capacity = self.control.battery.get_charge_capacity()
         # Check that we have 10kw Available for charge.
         self.assertEqual(available_charge_capacity, 10)
 
-        self.microgrid_simulator._set_state(
+        self.control._set_state(
             load=2, solar_gen=10, tou_tariff=1, battery_soc=0.90
         )
 
-        result = self.microgrid_simulator.balance_energy(action=2)
+        result = self.control.balance_energy(action=2)
 
         energy_balance = 8
         purchase_request = 2
         expected_charge = (
             energy_balance + purchase_request
-        ) * self.microgrid_simulator.battery.battery_efficiency  # Note that it is not always expected that the purchase request is actually purchased. We know it should be because the max available charge is less than the energy balance.
+        ) * self.control.battery.efficiency  # Note that it is not always expected that the purchase request is actually purchased. We know it should be because the max available charge is less than the energy balance.
 
         expected_result = {
             'to_purchase': 2,
@@ -208,19 +198,17 @@ class TestMicroGridSimulator(unittest.TestCase):
         # Case 5: energy balance is 12kWh, available_charge_capacity = 8kWh, purchase request = 6kWh
 
         # Set the battery capcity and check the available capacity is 8kWh
-        self.microgrid_simulator.battery._set_battery_capacity(100)
-        self.microgrid_simulator.battery._set_soc(0.92)
-        self.assertEqual(
-            self.microgrid_simulator.battery.get_charge_capacity(), 8
-        )
+        self.control.battery._set_battery_capacity(100)
+        self.control.battery._set_soc(0.92)
+        self.assertEqual(self.control.battery.get_charge_capacity(), 8)
 
         # set the state to have an energy balance of 12kWh
-        self.microgrid_simulator._set_state(
+        self.control._set_state(
             load=2, solar_gen=14, tou_tariff=1, battery_soc=0.92
         )
 
         # request to purchase 6kWh
-        result = self.microgrid_simulator.balance_energy(action=6)
+        result = self.control.balance_energy(action=6)
 
         # Since the energy balance is much higer than the available charge capacity the expected charge is the available capacity with efficiency applied.
         expected_charge = 8.0
@@ -230,8 +218,7 @@ class TestMicroGridSimulator(unittest.TestCase):
             'charged_this_step': expected_charge,  # 8/0.9 = 8.8888
             'discharged_this_step': 0,
             'excess_this_step': 12
-            - expected_charge
-            / self.microgrid_simulator.battery.battery_efficiency,
+            - expected_charge / self.control.battery.efficiency,
             'unmet_demand_this_step': 0,
         }
 
@@ -241,17 +228,15 @@ class TestMicroGridSimulator(unittest.TestCase):
         # Case 6: energy balance is 12kWh, available_charge_capacity = 8kWh, purchase request = 4kWh
 
         # Set the battery capcity and check the available capacity is 8kWh
-        self.microgrid_simulator.battery._set_battery_capacity(100)
-        self.microgrid_simulator.battery._set_soc(0.92)
-        self.assertEqual(
-            self.microgrid_simulator.battery.get_charge_capacity(), 8
-        )
+        self.control.battery._set_battery_capacity(100)
+        self.control.battery._set_soc(0.92)
+        self.assertEqual(self.control.battery.get_charge_capacity(), 8)
 
-        self.microgrid_simulator._set_state(
+        self.control._set_state(
             load=2, solar_gen=14, tou_tariff=1, battery_soc=0.92
         )
 
-        result = self.microgrid_simulator.balance_energy(action=4)
+        result = self.control.balance_energy(action=4)
 
         expected_charge = 8.0
 
@@ -260,8 +245,7 @@ class TestMicroGridSimulator(unittest.TestCase):
             'charged_this_step': expected_charge,
             'discharged_this_step': 0,
             'excess_this_step': 12
-            - expected_charge
-            / self.microgrid_simulator.battery.battery_efficiency,
+            - expected_charge / self.control.battery.efficiency,
             'unmet_demand_this_step': 0,
         }
 
@@ -270,17 +254,15 @@ class TestMicroGridSimulator(unittest.TestCase):
     def test_case7(self):
         # Case 7: energy balance is 12kWh, available_charge_capacity = 8kWh, purchase request = 0kWh
         # Set the battery capcity and check the available capacity is 8kWh
-        self.microgrid_simulator.battery._set_battery_capacity(100)
-        self.microgrid_simulator.battery._set_soc(0.92)
-        self.assertEqual(
-            self.microgrid_simulator.battery.get_charge_capacity(), 8
-        )
+        self.control.battery._set_battery_capacity(100)
+        self.control.battery._set_soc(0.92)
+        self.assertEqual(self.control.battery.get_charge_capacity(), 8)
 
-        self.microgrid_simulator._set_state(
+        self.control._set_state(
             load=2, solar_gen=14, tou_tariff=1, battery_soc=0.92
         )
 
-        result = self.microgrid_simulator.balance_energy(action=0)
+        result = self.control.balance_energy(action=0)
 
         expected_charge = 8.0
 
@@ -289,8 +271,7 @@ class TestMicroGridSimulator(unittest.TestCase):
             'charged_this_step': expected_charge,
             'discharged_this_step': 0,
             'excess_this_step': 12
-            - expected_charge
-            / self.microgrid_simulator.battery.battery_efficiency,
+            - expected_charge / self.control.battery.efficiency,
             'unmet_demand_this_step': 0,
         }
         self.assertDictEqual(result, expected_result)
@@ -300,30 +281,24 @@ class TestMicroGridSimulator(unittest.TestCase):
     ):  # Testing the negative power balance path with 0 purchase request but enough battery
         # case 8: energy balance is -8kWh, available_discharge_capacity = 10kWh, purchase request = 0
         # setup the battery:
-        self.microgrid_simulator.battery._set_battery_capacity(100)
-        self.microgrid_simulator.battery._set_battery_soc_cutoff(0.4)
-        self.microgrid_simulator.battery._set_soc(0.50)
-        self.assertEqual(
-            self.microgrid_simulator.battery.get_discharge_capacity(), 10
-        )
+        self.control.battery._set_battery_capacity(100)
+        self.control.battery._set_battery_soc_cutoff(0.4)
+        self.control.battery._set_soc(0.50)
+        self.assertEqual(self.control.battery.get_discharge_capacity(), 10)
 
         # setup the microgrid
-        self.microgrid_simulator._set_state(
+        self.control._set_state(
             load=10, solar_gen=2, tou_tariff=1, battery_soc=0.50
         )
 
         # Get the result with 0 purchase request
-        result = self.microgrid_simulator.balance_energy(action=0)
+        result = self.control.balance_energy(action=0)
 
         expected_discharge = 8
         expected_soc = round(
             (
                 0.50
-                - (
-                    expected_discharge
-                    / self.microgrid_simulator.battery.battery_efficiency
-                )
-                / 100
+                - (expected_discharge / self.control.battery.efficiency) / 100
             ),
             12,
         )  # 0.50 - (8/0.9)/100 = 0.4111
@@ -336,9 +311,7 @@ class TestMicroGridSimulator(unittest.TestCase):
         }
 
         # Check that the battery discharged as expected.
-        self.assertEqual(
-            expected_soc, self.microgrid_simulator.battery.get_soc()
-        )
+        self.assertEqual(expected_soc, self.control.battery.get_soc())
 
         # Check that the result is equal.
         self.assertDictEqual(result, expected_result)
@@ -347,20 +320,18 @@ class TestMicroGridSimulator(unittest.TestCase):
         # case 9: energy balance is -8kWh, available_discharge_capacity = 10kWh, purchase request = 8kwh
 
         # setup the battery
-        self.microgrid_simulator.battery._set_battery_capacity(100)
-        self.microgrid_simulator.battery._set_battery_soc_cutoff(0.4)
-        self.microgrid_simulator.battery._set_soc(0.5)
-        self.assertEqual(
-            self.microgrid_simulator.battery.get_discharge_capacity(), 10
-        )
+        self.control.battery._set_battery_capacity(100)
+        self.control.battery._set_battery_soc_cutoff(0.4)
+        self.control.battery._set_soc(0.5)
+        self.assertEqual(self.control.battery.get_discharge_capacity(), 10)
 
         # setup the microgrid
-        self.microgrid_simulator._set_state(
+        self.control._set_state(
             load=10, solar_gen=2, tou_tariff=1, battery_soc=0.5
         )
 
         # Get the result with 8kWh purchase request
-        result = self.microgrid_simulator.balance_energy(action=8)
+        result = self.control.balance_energy(action=8)
 
         expected_soc = 0.5
         expected_result = {
@@ -372,9 +343,7 @@ class TestMicroGridSimulator(unittest.TestCase):
         }
 
         # Check that the battery discharged as expected.
-        self.assertEqual(
-            expected_soc, self.microgrid_simulator.battery.get_soc()
-        )
+        self.assertEqual(expected_soc, self.control.battery.get_soc())
         self.assertDictEqual(result, expected_result)
 
     def test_case10(
@@ -383,24 +352,20 @@ class TestMicroGridSimulator(unittest.TestCase):
         # case 10: energy balance is -8kWh, available_discharge_capacity = 10kWh, purchase_request = 10 kWh
 
         # setup the battery
-        self.microgrid_simulator.battery._set_battery_capacity(100)
-        self.microgrid_simulator.battery._set_battery_soc_cutoff(0.4)
-        self.microgrid_simulator.battery._set_soc(0.5)
-        self.assertEqual(
-            self.microgrid_simulator.battery.get_discharge_capacity(), 10
-        )
+        self.control.battery._set_battery_capacity(100)
+        self.control.battery._set_battery_soc_cutoff(0.4)
+        self.control.battery._set_soc(0.5)
+        self.assertEqual(self.control.battery.get_discharge_capacity(), 10)
 
         # setup the microgrid
-        self.microgrid_simulator._set_state(
+        self.control._set_state(
             load=10, solar_gen=2, tou_tariff=1, battery_soc=0.5
         )
 
         # Get the result with 8kWh purchase request
-        result = self.microgrid_simulator.balance_energy(action=10)
+        result = self.control.balance_energy(action=10)
 
-        expected_charge = (
-            -8 + 10
-        ) * self.microgrid_simulator.battery.battery_efficiency
+        expected_charge = (-8 + 10) * self.control.battery.efficiency
 
         expected_soc = (
             0.5 + (expected_charge) / 100
@@ -416,31 +381,25 @@ class TestMicroGridSimulator(unittest.TestCase):
 
         # Check that the battery discharged as expected.
         self.assertDictEqual(result, expected_result)
-        self.assertEqual(
-            expected_soc, self.microgrid_simulator.battery.get_soc()
-        )
+        self.assertEqual(expected_soc, self.control.battery.get_soc())
 
     def test_case11(self):  # Testing Negative energy balance path.
         # case 11: energy balance is -10kWh, available_discharge_capacity = 8kWh, purchase_request = 0
 
         # setup the battery:
-        self.microgrid_simulator.battery._set_battery_capacity(100)
-        self.microgrid_simulator.battery._set_battery_soc_cutoff(0.4)
-        self.microgrid_simulator.battery._set_soc(0.48)
-        self.assertEqual(
-            self.microgrid_simulator.battery.get_discharge_capacity(), 8
-        )
+        self.control.battery._set_battery_capacity(100)
+        self.control.battery._set_battery_soc_cutoff(0.4)
+        self.control.battery._set_soc(0.48)
+        self.assertEqual(self.control.battery.get_discharge_capacity(), 8)
 
         # setup the microgrid
-        self.microgrid_simulator._set_state(
+        self.control._set_state(
             load=12, solar_gen=2, tou_tariff=1, battery_soc=0.48
         )
 
-        result = self.microgrid_simulator.balance_energy(action=0)
+        result = self.control.balance_energy(action=0)
 
-        expected_discharge = (
-            8 * self.microgrid_simulator.battery.battery_efficiency
-        )
+        expected_discharge = 8 * self.control.battery.efficiency
         expected_soc = 0.4
         expected_purchase = 10 - expected_discharge
         expected_result = {
@@ -451,31 +410,25 @@ class TestMicroGridSimulator(unittest.TestCase):
             'unmet_demand_this_step': 0,
         }
 
-        self.assertEqual(
-            expected_soc, self.microgrid_simulator.battery.get_soc()
-        )
+        self.assertEqual(expected_soc, self.control.battery.get_soc())
         self.assertDictEqual(result, expected_result)
 
     def test_case12(self):
         # case 12: energy_balance is -10kWh, available_discharge_capacity = 8kWh, purchase_request = 2kWh
         # setup the Battery:
-        self.microgrid_simulator.battery._set_battery_capacity(100)
-        self.microgrid_simulator.battery._set_battery_soc_cutoff(0.4)
-        self.microgrid_simulator.battery._set_soc(0.48)
-        self.assertEqual(
-            self.microgrid_simulator.battery.get_discharge_capacity(), 8
-        )
+        self.control.battery._set_battery_capacity(100)
+        self.control.battery._set_battery_soc_cutoff(0.4)
+        self.control.battery._set_soc(0.48)
+        self.assertEqual(self.control.battery.get_discharge_capacity(), 8)
 
         # setup the microgrid
-        self.microgrid_simulator._set_state(
+        self.control._set_state(
             load=12, solar_gen=2, tou_tariff=1, battery_soc=0.48
         )
 
-        result = self.microgrid_simulator.balance_energy(action=2)
+        result = self.control.balance_energy(action=2)
 
-        expected_discharge = (
-            8 * self.microgrid_simulator.battery.battery_efficiency
-        )
+        expected_discharge = 8 * self.control.battery.efficiency
         expected_soc = 0.4
         expected_purchase = 10 - expected_discharge
         expected_result = {
@@ -486,38 +439,30 @@ class TestMicroGridSimulator(unittest.TestCase):
             'unmet_demand_this_step': 0,
         }
 
-        self.assertEqual(
-            expected_soc, self.microgrid_simulator.battery.get_soc()
-        )
+        self.assertEqual(expected_soc, self.control.battery.get_soc())
         self.assertDictEqual(result, expected_result)
 
     def test_case13(self):
         # case 13: energy_balance is -10kWh, available_discharge_capacity = 8kWh, purchase_request = 4
 
         # setup the Battery:
-        self.microgrid_simulator.battery._set_battery_capacity(100)
-        self.microgrid_simulator.battery._set_battery_soc_cutoff(0.4)
-        self.microgrid_simulator.battery._set_soc(0.48)
-        self.assertEqual(
-            self.microgrid_simulator.battery.get_discharge_capacity(), 8
-        )
+        self.control.battery._set_battery_capacity(100)
+        self.control.battery._set_battery_soc_cutoff(0.4)
+        self.control.battery._set_soc(0.48)
+        self.assertEqual(self.control.battery.get_discharge_capacity(), 8)
 
         # setup the microgrid
-        self.microgrid_simulator._set_state(
+        self.control._set_state(
             load=12, solar_gen=2, tou_tariff=1, battery_soc=0.48
         )
 
-        result = self.microgrid_simulator.balance_energy(action=4)
+        result = self.control.balance_energy(action=4)
 
         expected_discharge = 6
         expected_soc = round(
             (
                 0.48
-                - (
-                    expected_discharge
-                    / self.microgrid_simulator.battery.battery_efficiency
-                )
-                / 100
+                - (expected_discharge / self.control.battery.efficiency) / 100
             ),
             12,
         )  # 0.48 - (6/0.9)/100 = 0.4133333333
@@ -530,9 +475,7 @@ class TestMicroGridSimulator(unittest.TestCase):
             'unmet_demand_this_step': 0,
         }
 
-        self.assertEqual(
-            expected_soc, self.microgrid_simulator.battery.get_soc()
-        )
+        self.assertEqual(expected_soc, self.control.battery.get_soc())
         self.assertDictEqual(result, expected_result)
 
 

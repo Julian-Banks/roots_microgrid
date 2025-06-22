@@ -1,13 +1,13 @@
 import pandas as pd
 from io import StringIO
 from typing import Dict, Tuple
-from grid_simulator.battery_simulator import BatterySimulator
-from grid_simulator.solar_simulator import SolarSimulator
-from grid_simulator.load_simulator import LoadSimulator
-from grid_simulator.grid_feed_in_simulator import GridFeedInSimulator
+from sim.battery import Battery
+from sim.solar import Solar
+from sim.load import Load
+from sim.grid import Grid
 
 
-class microGridSimulator:
+class Control:
     def __init__(self, start_step: int = 0, end_step: int = 0):
 
         self.current_step = start_step
@@ -17,10 +17,10 @@ class microGridSimulator:
         self.time_interval = 1
 
         # setup battery
-        self.battery = BatterySimulator()
-        self.solar = SolarSimulator()
-        self.load = LoadSimulator()
-        self.grid = GridFeedInSimulator()
+        self.battery = Battery()
+        self.solar = Solar()
+        self.load = Load()
+        self.grid = Grid()
 
         self.update_state(self.current_step)
 
@@ -118,8 +118,7 @@ class microGridSimulator:
         # Need to draw energy from grid or battery.
         # Get the ammount from the battery is available to be discharge.
         discharge_capacity = (
-            self.battery.get_discharge_capacity()
-            * self.battery.battery_efficiency
+            self.battery.get_discharge_capacity() * self.battery.efficiency
         )
         # energy_balance + purchase_request  is less than 0
         if discharge_capacity > abs(energy_balance + purchase_request):
@@ -152,7 +151,7 @@ class microGridSimulator:
         # Check what the max usable energy is by checking how much energy can be stored in the battery.
         charge_capacity = self.battery.get_charge_capacity()
         # conver it to the max usable energy:
-        charge_capacity = charge_capacity / self.battery.battery_efficiency
+        charge_capacity = charge_capacity / self.battery.efficiency
 
         # if the max usable energy is more thatn the available energy balance. Then you can purchase more energy.
         # if you can purchase more, then you can only purchase up to the available energy or less.

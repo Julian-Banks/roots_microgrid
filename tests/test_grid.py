@@ -1,11 +1,11 @@
-from grid_simulator.grid_feed_in_simulator import GridFeedInSimulator
+from sim.grid import Grid
 import unittest
 
 
-class TestGridFeedInSimulator(unittest.TestCase):
+class TestGrid(unittest.TestCase):
 
     def setUp(self):
-        self.grid_feed_in_simulator = GridFeedInSimulator()
+        self.grid = Grid()
 
     def tearDown(self):
         pass
