@@ -1,4 +1,4 @@
-from sim.control import Control
+from microgrid.control import Control
 from typing import Dict
 import unittest
 

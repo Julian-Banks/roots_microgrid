@@ -1,4 +1,4 @@
-from sim.battery import Battery
+from microgrid.battery import Battery
 from typing import Dict
 import unittest
 

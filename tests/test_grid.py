@@ -1,4 +1,4 @@
-from sim.grid import Grid
+from microgrid.grid import Grid
 import unittest
 
 

@@ -1,5 +1,5 @@
 from typing import Generator
-from sim.generator import Generator
+from microgrid.generator import Generator
 import unittest
 
 

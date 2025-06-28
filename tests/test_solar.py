@@ -1,4 +1,4 @@
-from sim.solar import Solar
+from microgrid.solar import Solar
 import unittest
 
 

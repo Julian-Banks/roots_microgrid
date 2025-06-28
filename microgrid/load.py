@@ -1,6 +1,6 @@
 from typing import Tuple
 import pandas as pd
-from sim import INPUT_FILE
+from microgrid import INPUT_FILE
 
 
 class Load:

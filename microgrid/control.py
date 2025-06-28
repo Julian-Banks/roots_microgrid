@@ -1,10 +1,10 @@
 import pandas as pd
 from io import StringIO
 from typing import Dict, Tuple
-from sim.battery import Battery
-from sim.solar import Solar
-from sim.load import Load
-from sim.grid import Grid
+from microgrid.battery import Battery
+from microgrid.solar import Solar
+from microgrid.load import Load
+from microgrid.grid import Grid
 
 
 class Control:

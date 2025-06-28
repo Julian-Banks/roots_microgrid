@@ -1,4 +1,4 @@
-from sim.load import Load
+from microgrid.load import Load
 import unittest
 
 
