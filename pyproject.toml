@@ -1,5 +1,5 @@
 [project]
-name = "roots_grid_simulator"
+name = "microgrid"
 dynamic = ["version"]
 dependencies = []
 requires-python = ">=3.11" #Pretty arbarity choice of required version. 
