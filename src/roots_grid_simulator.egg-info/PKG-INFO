@@ -1,0 +1,128 @@
+Metadata-Version: 2.4
+Name: roots_grid_simulator
+Version: 0.0.0
+Summary: A module to simulate energy flow through a microgrid with mixed enenergy sources.
+Author-email: Julian Banks <julianrowlandbanks@gmail.com>
+License-Expression: MIT
+Keywords: micro-grid,energy management
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+
+# Grid Energy Simulation Framework
+
+## Overview
+Python framework for simulating energy flows in grid-connected microgrid systems with battery storage, solar generation, and dynamic load modeling. Supports real-time simulations with configurable components and time-step energy management.
+
+![Architecture Diagram](diagram.png)
+```mermaid
+graph TD
+    Solar[Solar Simulator] -->|Generation| Inverter
+    Inverter[Inverter Simulator] --> |Renewable Power| Microgrid[Microgrid Controller]
+    Grid[Grid Interface] -->|Import| Microgrid[Microgrid Controller]
+    Load[Load Simulator] --> |Energy Load| Microgrid[Microgrid Controller]
+    Battery -->|Storage Levels| Microgrid
+    Microgrid -->|Export| Grid
+    Microgrid -->|Control Signals| Battery
+```
+
+## Key Components
+
+### Microgrid Controller (`microgrid_simulator.py`)
+- Coordinates energy flow between all system components
+- Manages simulation time steps and state transitions
+- Implements energy balance calculations
+
+```python
+class MicroGridSimulator:
+    """Core controller for microgrid energy flow simulation"""
+    
+    def step(self, timestep: int) -> None:
+        """Advance simulation by one time step"""
+        
+    def balance_energy(self, action: float):
+        """Adjust system state based on control signals"""
+
+```
+
+
+## Module Reference
+
+### Microgrid Controller (`microgrid_simulator.py`)
+- **MicroGridSimulator**: Core coordination of energy components
+  - `step`: Advance simulation by one time step
+  - `update_state`: Fetch the state for the current timestep
+  - `get_current_state`: Fetches the current state. 
+  - `balance_energy`: Main logic function. Adjust the system state based on control signals and ensure energy balance. 
+  - `artificial_positive_energy_balance`: Runs when the energy balance + the purchase request is positive. Determines how much of the purchase request can be fulfilled.
+  - `negative_energy_balance`: Runs when the Energy balance is negative. Decicdes where the energy should come from.
+  - `positive_energy_balance`: Runs when the energy balance is positive, determines if any extra energy has been requested to charge the battery
+  - `calculate_to_purchase`: Implements logic flow to determine the energy balance and check how much energy should be purchased.
+  - `balance_with_battery`: Charges or Discharges the battery to meet need of energy_balance_with_grid.
+
+### Battery System (`battery_simulator.py`)
+- **BatterySimulator**: Lithium-ion storage management
+  - `charge`: Charges the battery with charge_energy. Implements: Max Charge rate, Battery Efficiency, Max capacity. 
+  - `discharge`: Discharges energy from the battery to meet the needs of discharge_energy. Implements: Max discharge rate (C-rate), Battery Efficiency, Min SOC.
+  - `update_soc`: Updates the battery's SOC. 
+  - `get_charge_capacity`: Get the amount of energy that can go into the battery. Note that the amount of energy used would be energy_in/battery_efficiency
+  - `get_discharge_capacity`: Get the amount of energy the battery can discharge. Not that the amount usable energy would by discharge_capacity*battery_efficiency
+  - `get_battery_energy`: Get the amount of energy stored in the battery.
+  - `get_soc`: Gets the current soc
+- **To DO** 
+  -`Public API`: The main interface that other programs (RL in our case) can interface with the simulator. (I don't actually know where the best place to write this is, main.py, init.py????)
+
+### Grid Interface (`grid_feed_in_simulator.py`)
+- **GridFeedInSimulator**: Power exchange management
+  - `purchase_energy`:  Purchase energy from the grid, return the amount purchased and the cost.
+  - `calculate_cost`: Calculate the cost of energy purchased. 
+
+- **To Do**
+  - `setup_tariff_structure`: Initialize time-based pricing model
+  - `get_current_tariff`: Get the current cost of energy.
+
+### Solar Generation (`solar_simulator.py`)
+- **SolarSimulator**: Photovoltaic output modeling
+  - `setup_solar_generation`: Initialize production profile.
+  - `get_current_solar_generation`: Get the value of solar production for the current timestep.
+- **To Do**:
+  - `forecast_solar_generation`: Possible to implement cheats for this to test the RL aspect. Implementing something is high priority, implementing something good is much lower. 
+
+### Load Simulation (`load_simulator.py`)
+- **LoadSimulator**: Energy demand modeling
+  - `setup_loads`: Loads the load data from csv. 
+  - `get_current_load`: Get the current load
+- **To Do**:
+  - `forecast_load_generation`: Same as solar forecast. NB to have something but doesn't have to be good. 
+
+### Generator Simulation (`generator_simulator.py`)
+- **GeneratorSimulator**: Model a backup generator.
+  - `setup_generators`: set the generator's capacity and specs.
+  - `run_generators`: Generates the requested amount of energy.
+  - `calculate_generator_cost`: calculate the cost of generating the required energy.
+
+### Inverter Simulation (`inverter_simulator.py`)
+- **GeneratorSimulator**: Model a Inverter efficiencies 
+  - To Do
+
+### Moveable Load Simulation ('moveable_load_simulator.py`)
+- **MoveableLoadSimulator**: Model moveable loads like HVAC
+  - To Do. 
+
+## Installation
+```bash
+```
+
+## CLI Usage
+```bash
+```
+
+## Work Remaining
+
+- **Data Validation**: Add input schema validation for CSV files
+
+- **Documentation**: 
+  - 
+  -
+
+## License
+MIT License
