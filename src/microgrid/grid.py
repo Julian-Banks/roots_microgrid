@@ -79,7 +79,9 @@ class Grid:
         return self.tariffs[timestep]
 
     ##### To do #######
-    def get_tariff_forecast(self, current_step: int, forecast_length: int):
+    def get_tariff_forecast(
+        self, current_step: int, forecast_length: int = 24
+    ):
         # How is data going to be stored?
         # is it going to have timestamps? I kinda like this as a way of making sure alles is doing the right thing across modules.
         tariff_forecast = self.tariffs[

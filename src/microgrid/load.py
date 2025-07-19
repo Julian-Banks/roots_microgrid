@@ -39,3 +39,11 @@ class Load:
 
         loads = df["load"].tolist()
         return loads
+
+    def get_load_forecast(self, current_step: int, forecast_length: int = 24):
+        # How is data going to be stored?
+        # is it going to have timestamps? I kinda like this as a way of making sure alles is doing the right thing across modules.
+        load_forecast = self.load_values[
+            current_step : current_step + forecast_length
+        ]
+        return load_forecast
