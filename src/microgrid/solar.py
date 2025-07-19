@@ -51,3 +51,11 @@ class Solar:
 
     def get_current_solar_generation(self, timestep: int) -> float:
         return self.solar_generation[timestep]
+
+    def get_solar_forecast(self, current_step: int, forecast_length: int = 24):
+        # How is data going to be stored?
+        # is it going to have timestamps? I kinda like this as a way of making sure alles is doing the right thing across modules.
+        solar_forecast = self.solar_generation[
+            current_step : current_step + forecast_length
+        ]
+        return solar_forecast
