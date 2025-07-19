@@ -1,7 +1,14 @@
 from datetime import time
+from os import error
 from typing import Tuple
 import pandas as pd
 from microgrid import INPUT_FILE
+
+
+class GridError(Exception):
+    """Custom exception for raising errors in the Grid file. Found in microgrid/grid.py"""
+
+    pass
 
 
 class Grid:
@@ -12,6 +19,7 @@ class Grid:
         take_off_voltage: float = 240,
         take_off_power_rating: float = 1000,
         transformer_efficiencies: float = 1,
+        input_file: str = "",
     ):
 
         self.feed_in_voltage = feed_in_voltage
@@ -20,7 +28,7 @@ class Grid:
         self.take_off_power_rating = take_off_power_rating
         self.transformer_efficiencies = transformer_efficiencies
 
-        self.tariffs: list = self.setup_tariff_structure()
+        self.tariffs: list = self.setup_tariff_structure(input_file=input_file)
 
     def purchase_energy(
         self, purchase_amount: float, timestep: int
@@ -45,10 +53,26 @@ class Grid:
         cost: float = purchased_energy * self.get_current_tariff(timestep)
         return cost
 
-    def setup_tariff_structure(self) -> list:
+    def setup_tariff_structure(self, input_file) -> list:
         # Might find a way of either setting rules and generating these or just reading from a list with timestamps and values.
-        data = pd.read_csv(INPUT_FILE)
+
+        if input_file != "":
+            try:
+                data = pd.read_csv(input_file)
+            except (FileNotFoundError, pd.error.ParserError) as e:
+                raise GridError(
+                    f"Could not reach grid input file: {input_file}: {e}"
+                )
+        else:
+            try:
+                data = pd.read_csv(INPUT_FILE)
+            except (FileNotFoundError, pd.error.ParserError) as e:
+                raise GridError(
+                    f"Please provide a valid input path for grid path."
+                )
+
         tariffs = data["tou_tariff"].tolist()
+
         return tariffs
 
     def get_current_tariff(self, timestep: int) -> float:

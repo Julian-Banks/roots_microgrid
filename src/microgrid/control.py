@@ -8,19 +8,17 @@ from microgrid.grid import Grid
 
 
 class Control:
-    def __init__(self, start_step: int = 0, end_step: int = 0):
+    def __init__(self, start_step: int = 0, input_file: str = ""):
 
         self.current_step = start_step
-        self.end_step = end_step
-
         # time interval in hours
         self.time_interval = 1
 
         # setup battery
         self.battery = Battery()
-        self.solar = Solar()
-        self.load = Load()
-        self.grid = Grid()
+        self.solar = Solar(input_file=input_file)
+        self.load = Load(input_file=input_file)
+        self.grid = Grid(input_file=input_file)
 
         self.update_state(self.current_step)
 
