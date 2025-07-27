@@ -1,6 +1,7 @@
 import pandas as pd
 from io import StringIO
 from typing import Dict, Tuple
+import warnings
 from microgrid.battery import Battery
 from microgrid.solar import Solar
 from microgrid.load import Load
@@ -206,6 +207,20 @@ class Control:
             )
 
         return charged, discharged, excess, unmet_demand
+
+    def get_total_steps(self) -> int:
+        num_steps_solar: int = len(self.solar.solar_generation)
+        num_steps_load: int = len(self.load.load_values)
+        num_steps_tariffs: int = len(self.grid.tariffs)
+        if (
+            num_steps_solar
+            == num_steps_load & num_steps_load
+            == num_steps_tariffs
+        ):
+            return num_steps_solar
+        else:
+            warnings.warn("Warning, the length of all data is not equal!!")
+            return num_steps_solar
 
     # internal function to set the current step for testing purposes.
     def _set_step(self, step) -> None:

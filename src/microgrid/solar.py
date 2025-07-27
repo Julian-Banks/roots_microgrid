@@ -19,7 +19,7 @@ class Solar:
     ):
         self.kw_peak = kw_peak
         self.inverter_efficiency = inverter_efficiency
-        self.solar_generation = self.setup_solar_generation(input_file)
+        self.solar_generation: list = self.setup_solar_generation(input_file)
 
     def setup_solar_generation(self, input_file) -> list:
         """Load the solar generation"""

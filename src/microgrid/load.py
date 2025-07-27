@@ -13,7 +13,7 @@ class Load:
 
     def __init__(self, input_file: str = ""):
         # Super keen to set up some aircon units that would get initialised here!!!
-        self.load_values = self.setup_loads(input_file)
+        self.load_values: list = self.setup_loads(input_file)
 
     def get_current_load(self, timestep: int) -> float:
         current_load: float = self.load_values[timestep]
@@ -40,7 +40,9 @@ class Load:
         loads = df["load"].tolist()
         return loads
 
-    def get_load_forecast(self, current_step: int, forecast_length: int = 24):
+    def get_load_forecast(
+        self, current_step: int, forecast_length: int = 24
+    ) -> list:
         # How is data going to be stored?
         # is it going to have timestamps? I kinda like this as a way of making sure alles is doing the right thing across modules.
         load_forecast = self.load_values[
