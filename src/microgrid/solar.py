@@ -29,14 +29,15 @@ class Solar:
                 df = pd.read_csv(input_file)
             except (FileNotFoundError, pd.errors.ParserError) as e:
                 raise SolarError(
-                    f"Please input a valid path to the Solar Load file.{input_file} : {e} "
+                    f"Please provide a valid path to the Solar Load File.{input_file} : {e} \n"
+                    f"Input file provided: {input_file}"
                 )
         else:
             try:
                 df = pd.read_csv(INPUT_FILE)
             except (FileNotFoundError, pd.errors.ParserError) as e:
                 raise SolarError(
-                    f"Please input a valid path to the Solar Load File. {input_file} : {e}"
+                    f"No path procided to the Solar Load File, can't read default. {input_file} : {e}"
                 )
 
         if "solar_gen" not in df.columns:
