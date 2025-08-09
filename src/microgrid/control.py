@@ -45,7 +45,7 @@ class Control:
         return state
 
     # Functions to Energy logic flow
-    def balance_energy(self, action: float):
+    def balance_energy(self, action: float) -> Dict[str, float]:
         """Main logic function. Adjust system state based on control signals and ensure energy balance."""
         state: Dict[str, float] = self.get_current_state()
         purchase_request: float = (
