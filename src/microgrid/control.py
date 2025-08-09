@@ -58,7 +58,7 @@ class Control:
         )  # (Units: kW)
 
         # Calculate amount to purchase from Grid
-        to_purchase = self.calculate_to_purchase(
+        to_purchase: float = self.calculate_to_purchase(
             energy_balance, purchase_request
         )
 
@@ -70,7 +70,7 @@ class Control:
             energy_balance_with_grid
         )
 
-        result = {
+        result: Dict[str, float] = {
             'to_purchase': to_purchase,
             'charged_this_step': charged,
             'discharged_this_step': discharged,
