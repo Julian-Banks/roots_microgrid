@@ -81,7 +81,7 @@ class Control:
 
     def artificial_positive_energy_balance(
         self, energy_balance: float, purchase_request: float
-    ):
+    ) -> float:
         """
         Use: Runs when the energy balance + the purchase request is positive. Determines how much of the purchase request can be fufilled.(Avoids trying to over charge the battery)
                 Example:
@@ -95,7 +95,7 @@ class Control:
         Returns:
             Float (to_purchase): Amount to be purchased, calculated from available capacity and the purchase request.
         """
-
+        to_purchase: float = 0.0
         charge_capacity = self.battery.get_charge_capacity()
         to_purchase = min(-energy_balance + charge_capacity, purchase_request)
 
@@ -114,6 +114,7 @@ class Control:
         Returns:
             Float: Amount to be purchased from the grid, inclusive of purchase request.
         """
+        to_purchase: float = 0.0
         # Need to draw energy from grid or battery.
         # Get the ammount from the battery is available to be discharge.
         discharge_capacity = (
@@ -147,6 +148,7 @@ class Control:
         Returns:
             Float: Amount to be purchased from the grid.
         """
+        to_purchase: float = 0.0
         # Check what the max usable energy is by checking how much energy can be stored in the battery.
         charge_capacity = self.battery.get_charge_capacity()
         # conver it to the max usable energy:
